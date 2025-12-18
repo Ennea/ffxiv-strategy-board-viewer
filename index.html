@@ -66,17 +66,32 @@
         #canvas {
             background-color: #666;
         }
+
+        footer {
+            color: rgb(from var(--fg) r g b / 0.25);
+            text-align: center;
+        }
+
+        a {
+            color: rgb(from var(--fg) r g b / 0.5);
+        }
     </style>
 </head>
 
 <body>
     <h1>Final Fantasy XIV Strategy Board Viewer</h1>
+
     <form id="form">
         <input id="input" type="text" placeholder="Enter strategy board code">
         <button type="submit">View board</button>
     </form>
 
     <canvas id="canvas" width="1024" height="768"></canvas>
+
+    <footer>
+        Made by Ennea with ❤️ | <a href="https://github.com/Ennea/ffxiv-strategy-board-viewer">GitHub</a><br>
+        FINAL FANTASY XIV © 2010 - 2025 SQUARE ENIX CO., LTD. All Rights Reserved.
+    </footer>
 
     <script src="bundle.js"></script>
 </body>
