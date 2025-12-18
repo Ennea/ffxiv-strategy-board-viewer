@@ -1,0 +1,40 @@
+lockfileVersion: '9.0'
+
+settings:
+  autoInstallPeers: true
+  excludeLinksFromLockfile: false
+
+importers:
+
+  .:
+    dependencies:
+      binary-parser:
+        specifier: ^2.3.0
+        version: 2.3.0
+      pako:
+        specifier: ^2.1.0
+        version: 2.1.0
+    devDependencies:
+      '@types/pako':
+        specifier: ^2.0.4
+        version: 2.0.4
+
+packages:
+
+  '@types/pako@2.0.4':
+    resolution: {integrity: sha512-VWDCbrLeVXJM9fihYodcLiIv0ku+AlOa/TQ1SvYOaBuyrSKgEcro95LJyIsJ4vSo6BXIxOKxiJAat04CmST9Fw==}
+
+  binary-parser@2.3.0:
+    resolution: {integrity: sha512-TXOlPrhvi+kZUv3vA1qZ+MBdqZdihF8gWw7j/MRINiJqXH652GtLSqFTHNPjG8kHbiMQSCATG9oat9ao6aA8dA==}
+    engines: {node: '>=14'}
+
+  pako@2.1.0:
+    resolution: {integrity: sha512-w+eufiZ1WuJYgPXbV/PO3NCMEc3xqylkKHzp8bxp1uW4qaSNQUkwmLLEc3kKsfz8lpV1F8Ht3U1Cm+9Srog2ug==}
+
+snapshots:
+
+  '@types/pako@2.0.4': {}
+
+  binary-parser@2.3.0: {}
+
+  pako@2.1.0: {}

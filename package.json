@@ -1,0 +1,13 @@
+{
+	"scripts": {
+		"build": "esbuild main.ts --bundle --minify --target=es2024 --outfile=bundle.js",
+		"watch": "esbuild main.ts --bundle --target=es2024 --watch --outfile=bundle.js"
+	},
+	"dependencies": {
+		"binary-parser": "^2.3.0",
+		"pako": "^2.1.0"
+	},
+	"devDependencies": {
+		"@types/pako": "^2.0.4"
+	}
+}
