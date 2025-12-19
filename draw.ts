@@ -114,7 +114,6 @@ function drawImage(
     ctx.restore();
 }
 
-// TODO: figure out how to straighten our lines ;)
 function drawLine(obj: SBObject) {
     const x2 = Math.round(obj.param1 / 5120 * 1024);
     const y2 = Math.round(obj.param2 / 3840 * 768);
@@ -216,7 +215,7 @@ async function drawObject(obj: SBObject) {
 
         // line stack
         case 15:
-            image = await loadImage(`assets/objects/${obj.id}.png`);
+            image = await loadImage(`assets/objects/${obj.id}.webp`);
             drawImage(
                 duplicateImage(image, 1, obj.param2),
                 obj.coordinates.x,
@@ -242,7 +241,7 @@ async function drawObject(obj: SBObject) {
 
         // linear knockback
         case 110:
-            image = await loadImage(`assets/objects/${obj.id}.png`);
+            image = await loadImage(`assets/objects/${obj.id}.webp`);
             drawImage(
                 duplicateImage(image, obj.param1, obj.param2),
                 obj.coordinates.x,
@@ -256,7 +255,7 @@ async function drawObject(obj: SBObject) {
             break;
 
         default:
-            image = await loadImage(`assets/objects/${obj.id}.png`);
+            image = await loadImage(`assets/objects/${obj.id}.webp`);
             drawImage(image, obj.coordinates.x, obj.coordinates.y, obj.angle, scale, obj.color.alpha);
             break;
     }
@@ -266,7 +265,7 @@ export async function drawStrategyBoard(strategyBoardData: Uint8Array) {
     const strategyBoard = parseStrategyBoardData(strategyBoardData);
 
     const ctx = getCanvasContext();
-    const background = await loadImage(`assets/background/${strategyBoard.background}.png`);
+    const background = await loadImage(`assets/background/${strategyBoard.background}.webp`);
     ctx.clearRect(0, 0, 1024, 768);
     ctx.drawImage(background, 0, 0);
 
