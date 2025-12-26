@@ -1,30 +1,32 @@
-import { knownObjects, objectScaleFactor } from './objects';
+import { StrategyBoardObject, spriteParameters, defaultObjectScale, SpriteParameters } from './objects';
 import { parseStrategyBoardData, SBObject } from './parser';
+import { loadCachedImage } from './images';
 
-
-function loadImage(url: string) {
-    return new Promise<HTMLImageElement>((resolve, reject) => {
-        const image = new Image();
-        image.onload = () => resolve(image);
-        image.onerror = reject;
-        image.src = url;
-    });
-}
 
 function getCanvasContext() {
     const canvas = document.getElementById('canvas') as HTMLCanvasElement;
     return canvas.getContext('2d')!;
 }
 
-function duplicateImage(image: HTMLImageElement, horizontalCount: number = 1, verticalCount: number = 1): HTMLCanvasElement {
+function duplicateImage(image: HTMLImageElement, spriteParams: SpriteParameters, horizontalCount: number = 1, verticalCount: number = 1): HTMLCanvasElement {
     const canvas = document.createElement('canvas');
-    canvas.width = image.width * horizontalCount;
-    canvas.height = image.height * verticalCount;
+    canvas.width = spriteParams.size! * horizontalCount;
+    canvas.height = spriteParams.size! * verticalCount;
 
     const ctx = canvas.getContext('2d')!;
     for (let y = 0; y < verticalCount; y++) {
         for (let x = 0; x < horizontalCount; x++) {
-            ctx.drawImage(image, x * image.width, y * image.height);
+            ctx.drawImage(
+                image,
+                spriteParams.offset!,
+                0,
+                spriteParams.size!,
+                spriteParams.size!,
+                x * spriteParams.size!,
+                y * spriteParams.size!,
+                spriteParams.size!,
+                spriteParams.size!
+            );
         }
     }
 
@@ -101,6 +103,7 @@ function makeAnnulusSector(innerRadius: number, outerRadius: number, arcAngle: n
 
 function drawImage(
     image: HTMLImageElement | HTMLCanvasElement,
+    spriteParams: SpriteParameters,
     x: number,
     y: number,
     angle: number = 0,
@@ -116,7 +119,22 @@ function drawImage(
     ctx.rotate(angle);
     ctx.scale(scale * (flipHorizontal ? -1 : 1), scale * (flipVertical ? -1 : 1));
     ctx.globalAlpha = alpha;
-    ctx.drawImage(image, -image.width / 2, -image.height / 2);
+
+    if (!(image instanceof HTMLCanvasElement) && spriteParams.image && spriteParams.offset !== undefined && spriteParams.size) {
+        ctx.drawImage(
+            image,
+            spriteParams.offset,
+            0,
+            spriteParams.size,
+            spriteParams.size,
+            -spriteParams.size / 2,
+            -spriteParams.size / 2,
+            spriteParams.size,
+            spriteParams.size
+        );
+    } else {
+        ctx.drawImage(image, -image.width / 2, -image.height / 2);
+    }
 
     ctx.restore();
 }
@@ -165,6 +183,7 @@ function drawDonut(obj: SBObject, image: HTMLImageElement | null = null) {
 
     drawImage(
         makeAnnulusSector(innerRadius, outerRadius, arcAngle, image),
+        {},
         obj.coordinates.x,
         obj.coordinates.y,
         obj.angle,
@@ -201,7 +220,7 @@ function drawText(obj: SBObject) {
 }
 
 async function drawObject(obj: SBObject) {
-    if (!knownObjects.includes(obj.id)) {
+    if (!(obj.id in StrategyBoardObject)) {
         console.error(`Unknown object ID ${obj.id}.`);
         return;
     }
@@ -210,26 +229,25 @@ async function drawObject(obj: SBObject) {
         return;
     }
 
-    const scale = obj.scale * (objectScaleFactor[obj.id] ?? 1);
+    const spriteParams = spriteParameters[obj.id];
+    const scale = obj.scale * (spriteParams.scale ?? defaultObjectScale);
     let image: HTMLImageElement;
 
     // special handling for specific objects
     switch (obj.id) {
-        // line AoE
-        case 11:
+        case StrategyBoardObject.LineAoE:
             drawRectangle(obj);
             break;
 
-        // line
-        case 12:
+        case StrategyBoardObject.Line:
             drawLine(obj);
             break;
 
-        // line stack
-        case 15:
-            image = await loadImage(`assets/objects/${obj.id}.webp`);
+        case StrategyBoardObject.LineStack:
+            image = await loadCachedImage(spriteParams);
             drawImage(
-                duplicateImage(image, 1, obj.param2),
+                duplicateImage(image, spriteParams, 1, obj.param2),
+                spriteParams,
                 obj.coordinates.x,
                 obj.coordinates.y,
                 obj.angle,
@@ -240,27 +258,24 @@ async function drawObject(obj: SBObject) {
             );
             break;
 
-        // fan AoE
-        case 10:
-            image = await loadImage('assets/objects/9.webp');
+        case StrategyBoardObject.FanAoE:
+            image = await loadCachedImage('assets/objects/circle_aoe');
             drawDonut(obj, image);
             break;
 
-        // donut
-        case 17:
+        case StrategyBoardObject.Donut:
             drawDonut(obj);
             break;
 
-        // text
-        case 100:
+        case StrategyBoardObject.Text:
             drawText(obj);
             break;
 
-        // linear knockback
-        case 110:
-            image = await loadImage(`assets/objects/${obj.id}.webp`);
+        case StrategyBoardObject.LinearKnockback:
+            image = await loadCachedImage(spriteParams);
             drawImage(
-                duplicateImage(image, obj.param1, obj.param2),
+                duplicateImage(image, spriteParams, obj.param1, obj.param2),
+                spriteParams,
                 obj.coordinates.x,
                 obj.coordinates.y,
                 obj.angle,
@@ -272,8 +287,8 @@ async function drawObject(obj: SBObject) {
             break;
 
         default:
-            image = await loadImage(`assets/objects/${obj.id}.webp`);
-            drawImage(image, obj.coordinates.x, obj.coordinates.y, obj.angle, scale, obj.color.alpha);
+            image = await loadCachedImage(spriteParams);
+            drawImage(image, spriteParams, obj.coordinates.x, obj.coordinates.y, obj.angle, scale, obj.color.alpha);
             break;
     }
 }
@@ -282,7 +297,7 @@ export async function drawStrategyBoard(strategyBoardData: Uint8Array) {
     const strategyBoard = parseStrategyBoardData(strategyBoardData);
 
     const ctx = getCanvasContext();
-    const background = await loadImage(`assets/background/${strategyBoard.background}.webp`);
+    const background = await loadCachedImage(`assets/background/${strategyBoard.background}`);
     ctx.clearRect(0, 0, 1024, 768);
     ctx.drawImage(background, 0, 0);
 

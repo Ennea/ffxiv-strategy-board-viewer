@@ -1,3 +1,4 @@
+// @ts-expect-error
 import { Parser } from 'binary-parser';
 
 
@@ -118,6 +119,8 @@ const StrategyBoardParser = new Parser().endianness('little')
                 this.___readingString = false;
             }
         }
+
+        return false;
     } })
 
     .nest('object_flags', { type: ObjectFlagSectionParser })
@@ -212,7 +215,7 @@ interface RawStrategyBoard {
     background: number;
 }
 
-export interface SBObjectFlags {
+interface SBObjectFlags {
     visible: boolean;
     flipHorizontal: boolean;
     flipVertical: boolean;

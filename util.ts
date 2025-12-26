@@ -48,3 +48,11 @@ export function mapOut(n: number): string {
 
     return '_';
 }
+
+export function error(message: string, suppressErrors: boolean) {
+    if (suppressErrors) {
+        console.error(message);
+    } else {
+        window.alert(message);
+    }
+}

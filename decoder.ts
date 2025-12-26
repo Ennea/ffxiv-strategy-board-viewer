@@ -1,17 +1,9 @@
 import pako from 'pako';
-import { mapIn, forwardTranslate, mapOut, toBase64 } from './util';
+import { mapIn, forwardTranslate, mapOut, toBase64, error } from './util';
 
 
 const STRATEGY_BOARD_PREFIX = '[stgy:a';
 const STRATEGY_BOARD_SUFFIX = ']';
-
-function error(message: string, suppressErrors: boolean) {
-    if (suppressErrors) {
-        console.error(message);
-    } else {
-        window.alert(message);
-    }
-}
 
 export function decodeStrategyBoardShareString(shareString: string, suppressErrors: boolean = false) {
     if (
@@ -38,6 +30,7 @@ export function decodeStrategyBoardShareString(shareString: string, suppressErro
 
     const base64 = new TextDecoder('windows-1252').decode(out);
     try {
+        // @ts-expect-error
         const decoded = Uint8Array.fromBase64(toBase64(base64));
         const decompressed = pako.inflate(decoded.slice(6));
         if (!decompressed) {
