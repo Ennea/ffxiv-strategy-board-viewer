@@ -77,7 +77,7 @@ const ParamSectionParser = new Parser().endianness('little')
     .array('values', { type: 'uint16le', length: 'length' });
 
 const StrategyBoardParser = new Parser().endianness('little')
-    .uint32('header_magic', { assert: 2 })
+    .uint32('header_magic')
     .uint16('length1')
     .uint32('header_unk1').uint32('header_unk2').uint32('header_unk3')
     .uint16('length2')
